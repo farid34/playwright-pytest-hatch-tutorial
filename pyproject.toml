@@ -1,0 +1,171 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tutorial-tests"
+dynamic = ["version"]
+description = 'Tests automatisés e-commerce avec Playwright et Pytest'
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = ["playwright", "pytest", "automation", "testing", "e2e"]
+authors = [
+  { name = "Farid Abdelhamid", email = "farid.abdelhamid1@gmail.com" },
+]
+
+# Dépendances principales (installées dans tous les environnements)
+dependencies = [
+	"playwright>=1.40.0",
+    	"pytest>=7.4.0",
+]
+
+# Dépendances optionnelles (pour développement)
+[project.optional-dependencies]
+dev = [
+    "pytest-playwright>=0.4.3",
+    "pytest-html>=4.1.1",
+    "pytest-xdist>=3.5.0",
+]
+
+# ═══════════════════════════════════════════════════════════
+# CONFIGURATION HATCH - ENVIRONNEMENTS
+# ═══════════════════════════════════════════════════════════
+
+# Environnement par défaut (développement)
+[tool.hatch.envs.default]
+dependencies = [
+    "pytest-playwright>=0.4.3",
+    "pytest-html>=4.1.1",
+    "pytest-xdist>=3.5.0",
+]
+
+# Scripts personnalisés pour l'environnement par défaut
+[tool.hatch.envs.default.scripts]
+# Installation des navigateurs Playwright
+install-browsers = "playwright install"
+
+# Tests de base
+test = "pytest {args}"
+test-v = "pytest -v {args}"
+test-vv = "pytest -vv {args}"
+
+# Tests en mode visible (headed)
+test-headed = "pytest --headed --slowmo=500 {args}"
+test-ui = "pytest --headed {args}"
+
+# Tests par markers
+test-smoke = "pytest -m smoke {args}"
+test-regression = "pytest -m regression {args}"
+test-login = "pytest -m login {args}"
+test-cart = "pytest -m cart {args}"
+
+# Tests parallèles (plus rapides)
+test-parallel = "pytest -n auto {args}"
+
+# Rapports
+test-report = "pytest --html=reports/report.html --self-contained-html {args}"
+
+# Tout vérifier
+check = [
+    "test",
+]
+
+# ═══════════════════════════════════════════════════════════
+# CONFIGURATION PYTEST
+# ═══════════════════════════════════════════════════════════
+
+[tool.pytest.ini_options]
+# Options de base
+addopts = [
+    "-v",                           # Verbose
+    "-s",                           # Afficher les print
+    "--tb=short",                   # Traceback court
+    "--strict-markers",             # Markers stricts
+   
+    # Playwright
+    "--browser", "chromium",        # Navigateur par défaut
+    # "--headed",                   # Décommentez pour mode visible
+    # "--slowmo", "500",            # Décommentez pour ralentir
+
+    # Screenshots et vidéos
+    "--screenshot", "only-on-failure",
+    "--video", "retain-on-failure",
+    "--tracing", "retain-on-failure",
+]
+
+# Chemins
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+# Markers personnalisés
+markers = [
+    "smoke: Tests critiques rapides (login, navigation de base)",
+    "regression: Suite complète de tests de régression",
+    "cart: Tests liés au panier d'achat",
+    "checkout: Tests du processus de checkout",
+    "products: Tests de la page produits",
+    "login: Tests d'authentification",
+    "slow: Tests qui prennent du temps",
+]
+
+# Logging
+log_cli = true
+log_cli_level = "INFO"
+log_cli_format = "%(asctime)s [%(levelname)8s] %(message)s"
+log_cli_date_format = "%Y-%m-%d %H:%M:%S"
+
+
+# ═══════════════════════════════════════════════════════════
+# CONFIGURATION COVERAGE (optionnel)
+# ═══════════════════════════════════════════════════════════
+
+[project.urls]
+Documentation = "https://github.com/farid34/playwright-pytest-hatch-tutorial#readme"
+Issues = "https://github.com/farid34/playwright-pytest-hatch-tutorial/issues"
+Source = "https://github.com/farid34/playwright-pytest-hatch-tutorial"
+
+[tool.hatch.version]
+path = "vcs"
+
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/tutorial_tests tests}"
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["tests/*", "**/__pycache__/*"]
+
+[tool.coverage.paths]
+tutorial_tests = ["src/tutorial_tests", "*/tutorial-tests/src/tutorial_tests"]
+tests = ["tests", "*/tutorial-tests/tests"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
