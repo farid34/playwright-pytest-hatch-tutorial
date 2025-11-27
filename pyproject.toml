@@ -128,7 +128,7 @@ Issues = "https://github.com/farid34/playwright-pytest-hatch-tutorial/issues"
 Source = "https://github.com/farid34/playwright-pytest-hatch-tutorial"
 
 [tool.hatch.version]
-path = "vcs"
+source = "vcs"
 
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/tutorial_tests tests}"
