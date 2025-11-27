@@ -31,3 +31,54 @@ hatch --version  # Vérification
 - [ ] Commandes testées dans le terminal
 
 ---
+
+### 🔧 Hatch vs Hatchling
+
+**Question :**
+Faut-il installer `hatch` ou `hatchling` ?
+
+**Réponse :**
+- ✅ **Installer : `hatch`** (l'outil CLI)
+- ❌ **Ne PAS installer : `hatchling`** (dépendance automatique)
+
+**Comprendre la différence :**
+- `hatch` = Gestionnaire de projet (ce qu'on utilise)
+- `hatchling` = Build backend (utilisé en interne)
+
+**Commande unique :**
+```powershell
+pip install hatch
+```
+
+**Vérification :**
+```powershell
+hatch --version        # Hatch
+pip show hatchling     # Installé automatiquement
+```
+
+**Dans pyproject.toml :**
+```toml
+[build-system]
+requires = ["hatchling"]  # Déclare la dépendance
+build-backend = "hatchling.build"
+```
+Ceci indique à Python quel système de build utiliser, mais hatchling est déjà installé avec hatch.
+
+---
+Sauvegardez.
+
+🎯 Confirmation
+Vous avez installé :
+powershellpip install hatch
+Vérifiez que les deux sont présents :
+powershellhatch --version
+pip show hatchling
+Si les deux commandes fonctionnent, vous êtes prêt ! ✅
+
+🚀 On peut continuer ?
+Confirmez-moi que :
+
+✅ hatch --version affiche la version
+✅ pip show hatchling affiche des infos
+
+Et on reprend la création du projet ! 🎭RéessayerClaude peut faire des erreurs. Assurez-vous de vérifier ses réponses.
