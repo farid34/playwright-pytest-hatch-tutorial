@@ -128,19 +128,9 @@ Documentation = "https://github.com/farid34/playwright-pytest-hatch-tutorial#rea
 Issues = "https://github.com/farid34/playwright-pytest-hatch-tutorial/issues"
 Source = "https://github.com/farid34/playwright-pytest-hatch-tutorial"
 
-#[tool.hatch.version]
-#source = "vcs"
-
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/tutorial_tests tests}"
-
 [tool.coverage.run]
 source = ["src"]
 omit = ["tests/*", "**/__pycache__/*"]
-
-[tool.coverage.paths]
-tutorial_tests = ["src/tutorial_tests", "*/tutorial-tests/src/tutorial_tests"]
-tests = ["tests", "*/tutorial-tests/tests"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -153,14 +143,7 @@ exclude_lines = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = []
-
-
-
-
-
-
-
+packages = ["src/tutorial_tests"]
 
 
 
