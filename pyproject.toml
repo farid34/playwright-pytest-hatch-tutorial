@@ -4,7 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "tutorial-tests"
-dynamic = ["version"]
+#dynamic = ["version"]
+version = "0.1.0"
 description = 'Tests automatisés e-commerce avec Playwright et Pytest'
 readme = "README.md"
 requires-python = ">=3.8"
@@ -127,8 +128,8 @@ Documentation = "https://github.com/farid34/playwright-pytest-hatch-tutorial#rea
 Issues = "https://github.com/farid34/playwright-pytest-hatch-tutorial/issues"
 Source = "https://github.com/farid34/playwright-pytest-hatch-tutorial"
 
-[tool.hatch.version]
-source = "vcs"
+#[tool.hatch.version]
+#source = "vcs"
 
 [tool.hatch.envs.types.scripts]
 check = "mypy --install-types --non-interactive {args:src/tutorial_tests tests}"
