@@ -1,5 +1,3 @@
----
-
 ## 📅 27/11/2025
 
 ### ⚠️ Erreur : Documentation vs Réalité
