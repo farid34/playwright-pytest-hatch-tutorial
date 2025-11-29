@@ -31,7 +31,7 @@ jobs:
       run: hatch run install-browsers
     
     - name: 🧪 Run tests
-      run: hatch run test --headed=false
+      run: hatch run test
     
     - name: 📤 Upload test results
       if: always()
