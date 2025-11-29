@@ -27,6 +27,7 @@ dev = [
     "pytest-playwright>=0.4.3",
     "pytest-html>=4.1.1",
     "pytest-xdist>=3.5.0",
+    "rich>=13.0.0",
 ]
 
 # ═══════════════════════════════════════════════════════════
@@ -39,6 +40,7 @@ dependencies = [
     "pytest-playwright>=0.4.3",
     "pytest-html>=4.1.1",
     "pytest-xdist>=3.5.0",
+    "rich>=13.0.0",
 ]
 
 # Scripts personnalisés pour l'environnement par défaut
