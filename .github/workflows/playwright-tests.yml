@@ -35,12 +35,31 @@ jobs: # Définit les tâches à exécuter (1 ou n jobs, ex: test, build, deploy)
     - name: 🧪 Run tests
       run: hatch run test # Lancement des tests playwright
     
-    - name: Generate Allure Report
+    - name: Install Java (required for Allure)
+      if: always()
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+    
+    - name: Install Allure
       if: always()
       run: |
-        sudo apt-get update
-        sudo apt-get install -y allure
-        hatch run allure-generate
+        sudo wget https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
+        sudo tar -zxvf allure-2.25.0.tgz -C /opt/
+        sudo ln -s /opt/allure-2.25.0/bin/allure /usr/bin/allure
+
+    - name: Generate Allure Report
+      if: always()
+      run: hatch run allure-generate
+    
+    - name: Upload Allure Report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: allure-report
+        path: allure-report/
+        retention-days: 7
   
     - name: 📤 Upload test results
       # Exécute cette étape même si les tests échouent
