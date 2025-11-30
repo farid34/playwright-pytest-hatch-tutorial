@@ -1,6 +1,7 @@
 """
 Configuration Pytest pour les tests E2E avec Playwright
 """
+import os
 import pytest
 from playwright.sync_api import Page, Browser, BrowserContext
 from datetime import datetime
@@ -45,8 +46,11 @@ def browser_type_launch_args():
     """
     Configuration du navigateur (une seule fois pour tous les tests)
     """
+    # Headless si en CI, sinon visible
+    is_ci = os.getenv("CI", "false") == "true"
+
     return {
-        "headless": False, # Voir le navigateur
+        "headless": is_ci,
         "slow_mo": 300, # Ralentir de 300 ms
     }
 
