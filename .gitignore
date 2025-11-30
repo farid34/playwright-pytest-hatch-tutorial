@@ -208,3 +208,8 @@ __marimo__/
 
 # État d'authentification (contient des cookies sensibles)
 playwright/.auth/
+
+# Test artifacts
+test-results/
+allure-results/
+allure-report/

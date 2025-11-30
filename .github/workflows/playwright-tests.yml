@@ -1,42 +1,52 @@
+# Nom du workflow affiché dans l'interface
+# visible dans l'onglet "Actions" du repo
 name: Playwright E2E Tests
 
-on:
-  push:
+on: # Définit quand le workflow se déclenche
+  push: # Se déclenche quand on fait "git push" sur la branche main ou master
     branches: [ main, master ]
-  pull_request:
+  pull_request: # Se déclenche quand quelqu'un crée une "Pull request" vers main ou master (code testé avant merge)
     branches: [ main, master ]
-  workflow_dispatch:
+  workflow_dispatch: # Permet de lancer le workflow 'manuellement' depuis l'interface Github (Actions -> Run workflow -> clic)
 
-jobs:
-  test:
-    timeout-minutes: 10
-    runs-on: ubuntu-latest
+jobs: # Définit les tâches à exécuter (1 ou n jobs, ex: test, build, deploy)
+  test: # Nom du job
+    timeout-minutes: 10 # Le job s'arrête automatiquement après 10 mn
+    runs-on: ubuntu-latest # Définit la machine virtuelle utilisée
 
-    steps:
+    steps: # Liste des étapes à exécuter dans l'ordre
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v4 # Télécharge le code depuis Github
 
     - name: Setup Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v5 # Installe python 3.12
       with:
         python-version: '3.12'
     
     - name: 📦 Install Hatch
-      run: pip install hatch
+      run: pip install hatch # Install hatch
     
     - name: 🔧 Install dependencies
-      run: hatch env create
+      run: hatch env create # Créer env virtuel hatch et install toutes les dépendances du pyproject.toml
     
     - name: 🌐 Install Playwright browsers
-      run: hatch run install-browsers
+      run: hatch run install-browsers # Installe les navigateurs Palywright
     
     - name: 🧪 Run tests
-      run: hatch run test
+      run: hatch run test # Lancement des tests playwright
     
-    - name: 📤 Upload test results
+    - name: Generate Allure Report
       if: always()
-      uses: actions/upload-artifact@v4
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y allure
+        hatch run allure-generate
+  
+    - name: 📤 Upload test results
+      # Exécute cette étape même si les tests échouent
+      if: always()
+      uses: actions/upload-artifact@v4 # Utilise l'action pour uploader des fichiers
       with:
-        name: test-results
-        path: test-results/
-        retention-days: 7
+        name: test-results # Nom de l'artifact (fichier zip qui contiendra vos résultats)
+        path: test-results/ # Dossier à uploader (screenshot, vidéos, traces)
+        retention-days: 7 # Garde les fichiers pendant 7 jours et les suppriment automatiquement

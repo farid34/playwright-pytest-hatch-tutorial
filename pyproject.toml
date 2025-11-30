@@ -28,6 +28,7 @@ dev = [
     "pytest-html>=4.1.1",
     "pytest-xdist>=3.5.0",
     "rich>=13.0.0",
+    "allure-pytest>=2.13.0",
 ]
 
 # ═══════════════════════════════════════════════════════════
@@ -41,6 +42,7 @@ dependencies = [
     "pytest-html>=4.1.1",
     "pytest-xdist>=3.5.0",
     "rich>=13.0.0",
+    "allure-pytest>=2.13.0",
 ]
 
 # Scripts personnalisés pour l'environnement par défaut
@@ -69,6 +71,13 @@ test-parallel = "pytest -n auto {args}"
 # Rapports
 test-report = "pytest --html=reports/report.html --self-contained-html {args}"
 
+# Rapports Allure
+test-allure = "pytest --alluredir=allure-results {args}"
+allure-serve = "allure serve allure-results"
+allure-generate = "allure generate allure-results -o allure-report --clean"
+
+
+
 # Tout vérifier
 check = [
     "test",
@@ -95,6 +104,9 @@ addopts = [
     "--screenshot", "only-on-failure",
     "--video", "retain-on-failure",
     "--tracing", "retain-on-failure",
+
+    # Allure dashboard tests results
+    #"--alluredir=allure-results",
 ]
 
 # Chemins
