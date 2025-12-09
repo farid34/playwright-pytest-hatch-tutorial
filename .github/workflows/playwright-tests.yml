@@ -9,77 +9,145 @@ on: # Définit quand le workflow se déclenche
     branches: [ main, master ]
   workflow_dispatch: # Permet de lancer le workflow 'manuellement' depuis l'interface Github (Actions -> Run workflow -> clic)
 
-permissions: # Définir les persmissions
-  contents: write # Permet au workflow de lire le contenu de mon repo
-  pages: write # Permet au workflow d'ecrire sur GitHub Pages (déploy, publish allure report, ect)
-  id-token: write # Permet au workflow de créer des tikens d'authent
+# ═══════════════════════════════════════════════════════════
+# PERMISSIONS
+# ═══════════════════════════════════════════════════════════
+permissions: # Définir les permissions
+  contents: read # Permet au workflow de LIRE le contenu de mon repo (pas d'écriture, plus sécurisé)
+  pages: write # Permet au workflow d'ÉCRIRE sur GitHub Pages (deploy, publish allure report, etc)
+  id-token: write # Permet au workflow de créer des tokens d'authentification (sécurise le déploiement)
 
+# Empêcher plusieurs déploiements en même temps (évite les conflits)
+concurrency:
+  group: "pages" # Nom du groupe de déploiement
+  cancel-in-progress: false # Ne pas annuler un déploiement en cours
+
+# ═══════════════════════════════════════════════════════════
+# JOB 1: TESTS
+# ═══════════════════════════════════════════════════════════
 jobs: # Définit les tâches à exécuter (1 ou n jobs, ex: test, build, deploy)
   test: # Nom du job
     timeout-minutes: 10 # Le job s'arrête automatiquement après 10 mn
-    runs-on: ubuntu-latest # Définit la machine virtuelle utilisée
+    runs-on: ubuntu-latest # Définit la machine virtuelle utilisée (Linux Ubuntu)
 
     steps: # Liste des étapes à exécuter dans l'ordre
-    - name: Checkout code
-      uses: actions/checkout@v4 # Télécharge le code depuis Github
+    
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 1: Récupérer le code
+    # ─────────────────────────────────────────────────────
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4 # Télécharge le code depuis GitHub
 
-    - name: Setup Python
-      uses: actions/setup-python@v5 # Installe python 3.12
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 2: Installer Python
+    # ─────────────────────────────────────────────────────
+    - name: 🐍 Setup Python
+      uses: actions/setup-python@v5 # Installe Python 3.12
       with:
         python-version: '3.12'
     
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 3: Installer Hatch
+    # ─────────────────────────────────────────────────────
     - name: 📦 Install Hatch
-      run: pip install hatch # Install hatch
+      run: pip install hatch # Installe Hatch (gestionnaire de projet Python)
     
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 4: Installer les dépendances
+    # ─────────────────────────────────────────────────────
     - name: 🔧 Install dependencies
-      run: hatch env create # Créer env virtuel hatch et install toutes les dépendances du pyproject.toml
+      run: hatch env create # Crée l'env virtuel Hatch et installe toutes les dépendances du pyproject.toml
     
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 5: Installer les navigateurs Playwright
+    # ─────────────────────────────────────────────────────
     - name: 🌐 Install Playwright browsers
-      run: hatch run install-browsers # Installe les navigateurs Palywright
+      run: hatch run install-browsers # Installe les navigateurs Playwright (Chromium, Firefox, WebKit)
     
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 6: Lancer les tests avec Allure
+    # ─────────────────────────────────────────────────────
     - name: 🧪 Run tests
-      run: hatch run test # Lancement des tests playwright
+      run: hatch run test-allure # Lance les tests Playwright + génère les données Allure
     
-    - name: Install Java (required for Allure)
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 7: Installer Java (requis pour Allure)
+    # ─────────────────────────────────────────────────────
+    - name: ☕ Install Java
       if: always()
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
-        java-version: '17'
+        distribution: 'temurin' # Distribution OpenJDK
+        java-version: '17' # Version Java 17
     
-    - name: Install Allure
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 8: Installer Allure CLI
+    # ─────────────────────────────────────────────────────
+    - name: 📊 Install Allure
       if: always()
       run: |
+        # Télécharge Allure depuis GitHub
         sudo wget https://github.com/allure-framework/allure2/releases/download/2.25.0/allure-2.25.0.tgz
+        # Extrait dans /opt/
         sudo tar -zxvf allure-2.25.0.tgz -C /opt/
+        # Crée un lien symbolique pour que 'allure' soit accessible globalement
         sudo ln -s /opt/allure-2.25.0/bin/allure /usr/bin/allure
 
-    - name: Generate Allure Report
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 9: Générer le rapport Allure
+    # ─────────────────────────────────────────────────────
+    - name: 📊 Generate Allure Report
       if: always()
-      run: hatch run allure-generate
+      run: hatch run allure-generate # Transforme les données en rapport HTML
 
-    # Publier sur Github pages
-    - name: Deploy to GtHub Pages
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 10: Préparer le rapport pour GitHub Pages
+    # ─────────────────────────────────────────────────────
+    - name: 📤 Upload Pages artifact
       if: always()
-      uses: peaceiris/actions-gh-pages@v3
+      uses: actions/upload-pages-artifact@v3 # Action officielle GitHub Pages
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./allure-report
-        destination_dir: allure-report
+        path: allure-report/ # Dossier contenant le rapport Allure
     
-    - name: Upload Allure Report
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 11: Upload backup (artifact téléchargeable)
+    # ─────────────────────────────────────────────────────
+    - name: 📦 Upload Allure Report (backup)
       if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: allure-report
-        path: allure-report/
-        retention-days: 7
+        name: allure-report # Nom de l'artifact (fichier zip)
+        path: allure-report/ # Dossier à zipper
+        retention-days: 7 # Garde pendant 7 jours puis supprime automatiquement
   
-    - name: 📤 Upload test results
-      # Exécute cette étape même si les tests échouent
+    # ─────────────────────────────────────────────────────
+    # ÉTAPE 12: Upload test results (screenshots, vidéos)
+    # ─────────────────────────────────────────────────────
+    - name: 📸 Upload test results
       if: always()
-      uses: actions/upload-artifact@v4 # Utilise l'action pour uploader des fichiers
+      uses: actions/upload-artifact@v4 # Action pour uploader des fichiers
       with:
-        name: test-results # Nom de l'artifact (fichier zip qui contiendra vos résultats)
-        path: test-results/ # Dossier à uploader (screenshot, vidéos, traces)
-        retention-days: 7 # Garde les fichiers pendant 7 jours et les suppriment automatiquement
+        name: test-results # Nom de l'artifact
+        path: test-results/ # Dossier contenant screenshots, vidéos, traces
+        retention-days: 7 # Garde pendant 7 jours
+
+# ═══════════════════════════════════════════════════════════
+# JOB 2: DÉPLOIEMENT GITHUB PAGES
+# ═══════════════════════════════════════════════════════════
+  deploy:
+    needs: test # Attend que le job "test" soit terminé
+    if: always()
+    runs-on: ubuntu-latest # Machine virtuelle Linux
+    
+    # Configuration de l'environnement GitHub Pages
+    environment:
+      name: github-pages # Nom de l'environnement (requis par GitHub)
+      url: ${{ steps.deployment.outputs.page_url }} # URL du site (générée automatiquement)
+    
+    steps:
+    # ─────────────────────────────────────────────────────
+    # DÉPLOYER sur GitHub Pages
+    # ─────────────────────────────────────────────────────
+    - name: 🚀 Deploy to GitHub Pages
+      id: deployment # ID pour référencer cette étape (permet de récupérer l'URL)
+      uses: actions/deploy-pages@v4 # Action officielle GitHub Pages
