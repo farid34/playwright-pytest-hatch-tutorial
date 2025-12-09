@@ -9,6 +9,9 @@ on: # Définit quand le workflow se déclenche
     branches: [ main, master ]
   workflow_dispatch: # Permet de lancer le workflow 'manuellement' depuis l'interface Github (Actions -> Run workflow -> clic)
 
+permissions: # Définir les persmissions
+  contents: write
+
 jobs: # Définit les tâches à exécuter (1 ou n jobs, ex: test, build, deploy)
   test: # Nom du job
     timeout-minutes: 10 # Le job s'arrête automatiquement après 10 mn
@@ -52,6 +55,15 @@ jobs: # Définit les tâches à exécuter (1 ou n jobs, ex: test, build, deploy)
     - name: Generate Allure Report
       if: always()
       run: hatch run allure-generate
+
+    # Publier sur Github pages
+    - name: Deploy to GtHub Pages
+      if: always()
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./allure-report
+        destination_dir: allure-report
     
     - name: Upload Allure Report
       if: always()

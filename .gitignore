@@ -213,3 +213,4 @@ playwright/.auth/
 test-results/
 allure-results/
 allure-report/
+INSTALLATION.md
