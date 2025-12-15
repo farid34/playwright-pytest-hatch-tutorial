@@ -1,27 +1,45 @@
 """
 Page Object Model pour la page de login de Saucedemo
 """
-from playwright.sync_api import Page
+from playwright.sync_api import Page, Locator
+from .base_page import BasePage
 from rich.console import Console
 
 console = Console()
 
-class LoginPage:
+class LoginPage(BasePage):
     """
     Page de login de Saucedemo
     """
 
     def __init__(self, page: Page, base_url: str):
-        self.page = page
+        super().__init__(page)
         self.url = base_url
 
-        # Locators
-        self.username_input = self.page.get_by_placeholder("Username")
-        self.password_input = self.page.get_by_placeholder("Password")
-        self.login_button = self.page.locator("#login-button")
-        self.error_message = self.page.locator("[data-test='error']")
+    # ═══════════════════════════════════════════════════════════
+    # PROPERTIES: Locators
+    # ═══════════════════════════════════════════════════════════
 
-        self.app_logo = self.page.locator(".app_logo")
+    @property
+    def username_input(self) -> Locator:
+        """Champs username"""
+        return self.page.get_by_placeholder("Username")
+    
+    @property
+    def password_input(self) -> Locator:
+        return self.page.get_by_placeholder("Password")
+        
+    @property
+    def login_button(self) -> Locator:
+        return self.page.locator("#login-button")
+    
+    @property
+    def error_message(self) -> Locator:
+        return self.page.locator("[data-test='error']")
+
+    # ═══════════════════════════════════════════════════════════
+    # ACTIONS
+    # ═══════════════════════════════════════════════════════════
 
     def navigate(self):
         """

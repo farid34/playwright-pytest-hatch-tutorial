@@ -91,7 +91,7 @@ check = [
 # Options de base
 addopts = [
     "-v",                           # Verbose
-    "-s",                           # Afficher les print
+    #"-s",                           # Afficher les print
     "--tb=short",                   # Traceback court
     "--strict-markers",             # Markers stricts
    
