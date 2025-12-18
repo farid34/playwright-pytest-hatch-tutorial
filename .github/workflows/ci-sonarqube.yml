@@ -111,7 +111,7 @@ jobs:
       # Utilise les credentials par défaut (admin/admin)
       - name: Create SonarQube project
         run: |
-          curl -u admin:admin -X POST `"http://localhost:9000/api/projects/create?name=Playwright%20Pytest%20Tutorial&project=playwright-pytest-hatch`"
+          curl -u admin:admin -X POST "http://localhost:9000/api/projects/create?name=Playwright%20Pytest%20Tutorial&project=playwright-pytest-hatch"
       
       # ======================================================================
       # ÉTAPE 9 : Générer un token d'authentification SonarQube
