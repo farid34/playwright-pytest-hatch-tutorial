@@ -33,11 +33,15 @@ jobs:
         image: sonarqube:10-community  # Version Community (gratuite)
         ports:
           - 9000:9000  # Expose SonarQube sur le port 9000
+        
+        # health interval: Vérifie la santé toutes les 10s
+        # health timeout: Timeout de 5s pour le health check
+        # health retries: 30 tentatives max (= 5 minutes)
         options: >-
           --health-cmd=`"curl -f http://localhost:9000/api/system/status || exit 1`"
-          --health-interval=10s    # Vérifie la santé toutes les 10s
-          --health-timeout=5s      # Timeout de 5s pour le health check
-          --health-retries=30      # 30 tentatives max (= 5 minutes)
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=30
     
     steps:
       # ======================================================================
