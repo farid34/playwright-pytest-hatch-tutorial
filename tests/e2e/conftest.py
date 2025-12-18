@@ -119,7 +119,7 @@ def authenticated_context(browser: Browser, base_url: str):
     from pathlib import Path
     from tutorial_tests.pages.login_page import LoginPage
     
-    console.print("[cyan]🔐 Création de la session authentifiée...[/cyan]")
+    console.print("[cyan] Création de la session authentifiée...[/cyan]")
     
     # Utilisateur par défaut
     username = "standard_user"
@@ -135,7 +135,7 @@ def authenticated_context(browser: Browser, base_url: str):
         return str(storage_state_path)
     
     # Sinon, créer une nouvelle session
-    console.print(f"[yellow]🔑 Connexion avec '{username}'...[/yellow]")
+    console.print(f"[yellow] Connexion avec '{username}'...[/yellow]")
     
     # Créer un nouveau contexte
     context = browser.new_context()

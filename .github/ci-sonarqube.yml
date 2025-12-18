@@ -1,0 +1,125 @@
+# ============================================================================
+# Workflow CI avec SonarQube
+# ============================================================================
+# Ce workflow effectue :
+# 1. Les tests Playwright avec couverture de code
+# 2. L'analyse de qualité du code avec SonarQube
+# 3. La vérification des seuils de qualité (Quality Gates)
+# ============================================================================
+
+name: CI avec SonarQube
+
+# Déclencheurs du workflow
+on:
+  push:
+    branches:
+      - main  # Lance l'analyse à chaque push sur main
+  pull_request:
+    types: [opened, synchronize, reopened]  # Lance l'analyse sur les PR
+
+
+jobs:
+  test-and-analyze:
+    name: Tests et Analyse SonarQube
+    runs-on: ubuntu-latest  # Utilise un runner Ubuntu
+
+    # ========================================================================
+    # SERVICE : SonarQube embarqué dans GitHub Actions
+    # ========================================================================
+    # Lance un conteneur SonarQube directement dans le workflow
+    # Avantage : pas besoin d'un serveur SonarQube externe
+    services:
+      sonarqube:
+        image: sonarqube:10-community  # Version Community (gratuite)
+        ports:
+          - 9000:9000  # Expose SonarQube sur le port 9000
+        options: >-
+          --health-cmd=`"curl -f http://localhost:9000/api/system/status || exit 1`"
+          --health-interval=10s    # Vérifie la santé toutes les 10s
+          --health-timeout=5s      # Timeout de 5s pour le health check
+          --health-retries=30      # 30 tentatives max (= 5 minutes)
+    
+    steps:
+      # ======================================================================
+      # ÉTAPE 1 : Récupération du code source
+      # ======================================================================
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Récupère tout l'historique Git pour l'analyse SonarQube
+    
+    # ======================================================================
+      # ÉTAPE 2 : Configuration de l'environnement Python
+      # ======================================================================
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'  # Version Python utilisée
+    
+    # ======================================================================
+      # ÉTAPE 3 : Installation de Hatch (gestionnaire de projet)
+      # ======================================================================
+      - name: Install Hatch
+        run: pip install hatch
+      
+      # ======================================================================
+      # ÉTAPE 4 : Installation des dépendances du projet
+      # ======================================================================
+      - name: Install dependencies
+        run: hatch env create  # Crée l'environnement virtuel et installe les dépendances
+      
+      # ======================================================================
+      # ÉTAPE 5 : Installation des navigateurs Playwright
+      # ======================================================================
+      - name: Install Playwright browsers
+        run: hatch run playwright install --with-deps chromium  # Installe Chrome + dépendances système
+      
+      # ======================================================================
+      # ÉTAPE 6 : Exécution des tests avec couverture de code
+      # ======================================================================
+      # Génère le fichier coverage.xml nécessaire pour SonarQube
+      - name: Run tests with coverage
+        run: hatch run pytest --cov=src --cov-report=xml --cov-report=term
+      
+      # ======================================================================
+      # ÉTAPE 7 : Attendre que SonarQube soit prêt
+      # ======================================================================
+      # Le conteneur SonarQube met ~1-2 minutes à démarrer
+      - name: Wait for SonarQube to be ready
+        run: |
+          timeout 300 bash -c 'until curl -f http://localhost:9000/api/system/status | grep -q `"UP`"; do sleep 5; done'
+      
+      # ======================================================================
+      # ÉTAPE 8 : Créer le projet dans SonarQube
+      # ======================================================================
+      # Utilise les credentials par défaut (admin/admin)
+      - name: Create SonarQube project
+        run: |
+          curl -u admin:admin -X POST `"http://localhost:9000/api/projects/create?name=Playwright%20Pytest%20Tutorial&project=playwright-pytest-hatch`"
+      
+      # ======================================================================
+      # ÉTAPE 9 : Générer un token d'authentification SonarQube
+      # ======================================================================
+      # Le token est stocké dans la variable d'output 'token'
+      - name: Generate SonarQube token
+        id: sonar-token
+        run: |
+          TOKEN=`$(curl -u admin:admin -X POST `"http://localhost:9000/api/user_tokens/generate?name=github-actions`" | jq -r '.token')
+          echo `"token=`$TOKEN`" >> `$GITHUB_OUTPUT
+      
+      # ======================================================================
+      # ÉTAPE 10 : Analyse du code avec SonarQube Scanner
+      # ======================================================================
+      # Lance l'analyse de qualité du code et envoie les résultats à SonarQube
+      - name: SonarQube Scan
+        run: |
+          docker run --rm \
+            --network=`"host`" \
+            -v `${{ github.workspace }}:/usr/src \
+            sonarsource/sonar-scanner-cli \
+            -Dsonar.projectKey=playwright-pytest-hatch \
+            -Dsonar.sources=src \
+            -Dsonar.tests=tests \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.token=`${{ steps.sonar-token.outputs.token }} \
+            -Dsonar.python.coverage.reportPaths=coverage.xml

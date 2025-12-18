@@ -18,7 +18,7 @@ authors = [
 # Dépendances principales (installées dans tous les environnements)
 dependencies = [
 	"playwright>=1.40.0",
-    	"pytest>=7.4.0",
+    "pytest>=7.4.0",
 ]
 
 # Dépendances optionnelles (pour développement)
@@ -29,6 +29,7 @@ dev = [
     "pytest-xdist>=3.5.0",
     "rich>=13.0.0",
     "allure-pytest>=2.13.0",
+    "pytest-cov>=4.1.0"
 ]
 
 # ═══════════════════════════════════════════════════════════
@@ -43,6 +44,7 @@ dependencies = [
     "pytest-xdist>=3.5.0",
     "rich>=13.0.0",
     "allure-pytest>=2.13.0",
+    "pytest-cov>=4.1.0"
 ]
 
 # Scripts personnalisés pour l'environnement par défaut
@@ -76,7 +78,8 @@ test-allure = "pytest --alluredir=allure-results {args}"
 allure-serve = "allure serve allure-results"
 allure-generate = "allure generate allure-results -o allure-report --clean"
 
-
+# SonarQube
+sonar = "pwsh scripts/run-sonar-analysis.ps1"
 
 # Tout vérifier
 check = [
@@ -107,6 +110,13 @@ addopts = [
 
     # Allure dashboard tests results
     #"--alluredir=allure-results",
+
+    # SonarQube reports
+    "--cov=src/tutorial_tests",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml:coverage.xml",
+    "--junitxml=tests-results/junit.xml",
 ]
 
 # Chemins
@@ -144,7 +154,13 @@ Source = "https://github.com/farid34/playwright-pytest-hatch-tutorial"
 
 [tool.coverage.run]
 source = ["src"]
-omit = ["tests/*", "**/__pycache__/*"]
+relative_files = true
+omit = [
+    "tests/*",                          # Exclure les tests
+    "**/__pycache__/*",                 # Exclure le cache Python
+    "**/__init__.py",                   # Exclure les __init__.py (fichiers vides)
+    "**/conftest.py",                   # Exclure les fixtures pytest
+]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -156,8 +172,12 @@ exclude_lines = [
     "if TYPE_CHECKING:",
 ]
 
+# Ignorer les fichiers avec 0 lignes de code
+skip_empty = true
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/tutorial_tests"]
+
 
 
 

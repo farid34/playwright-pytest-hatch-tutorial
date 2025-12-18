@@ -210,7 +210,7 @@ __marimo__/
 playwright/.auth/
 
 # Test artifacts
-test-results/
+tests-results/
 allure-results/
 allure-report/
 INSTALLATION.md
