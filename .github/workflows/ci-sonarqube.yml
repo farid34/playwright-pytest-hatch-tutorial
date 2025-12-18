@@ -120,8 +120,8 @@ jobs:
       - name: Generate SonarQube token
         id: sonar-token
         run: |
-          TOKEN=`$(curl -u admin:admin -X POST `"http://localhost:9000/api/user_tokens/generate?name=github-actions`" | jq -r '.token')
-          echo `"token=`$TOKEN`" >> `$GITHUB_OUTPUT
+          TOKEN=$(curl -u admin:admin -X POST "http://localhost:9000/api/user_tokens/generate?name=github-actions" | jq -r '.token')
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
       
       # ======================================================================
       # ÉTAPE 10 : Analyse du code avec SonarQube Scanner
@@ -130,12 +130,12 @@ jobs:
       - name: SonarQube Scan
         run: |
           docker run --rm \
-            --network=`"host`" \
-            -v `${{ github.workspace }}:/usr/src \
+            --network="host" \
+            -v ${{ github.workspace }}:/usr/src \
             sonarsource/sonar-scanner-cli \
             -Dsonar.projectKey=playwright-pytest-hatch \
             -Dsonar.sources=src \
             -Dsonar.tests=tests \
             -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.token=`${{ steps.sonar-token.outputs.token }} \
+            -Dsonar.token=${{ steps.sonar-token.outputs.token }} \
             -Dsonar.python.coverage.reportPaths=coverage.xml
