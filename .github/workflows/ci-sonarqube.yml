@@ -33,15 +33,17 @@ jobs:
         image: sonarqube:10-community  # Version Community (gratuite)
         ports:
           - 9000:9000  # Expose SonarQube sur le port 9000
+        env:
+          SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: true
         
         # health interval: Vérifie la santé toutes les 10s
         # health timeout: Timeout de 5s pour le health check
         # health retries: 30 tentatives max (= 5 minutes)
-        options: >-
-          --health-cmd=`"curl -f http://localhost:9000/api/system/status || exit 1`"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=60
+        #options: >-
+        #  --health-cmd=`"curl -f http://localhost:9000/api/system/status || exit 1`"
+        #  --health-interval=10s
+        #  --health-timeout=5s
+        #  --health-retries=60
     
     steps:
       # ======================================================================
@@ -91,7 +93,17 @@ jobs:
       # Le conteneur SonarQube met ~1-2 minutes à démarrer
       - name: Wait for SonarQube to be ready
         run: |
-          timeout 300 bash -c 'until curl -f http://localhost:9000/api/system/status | grep -q `"UP`"; do sleep 5; done'
+          echo "Waiting for SonarQube to start..."
+          for i in {1..120}; do
+            if curl -s http://localhost:9000/api/system/status | grep -q "UP"; then
+              echo "SonarQube is ready!"
+              exit 0
+            fi
+            echo "Attempt $i/120: SonarQube not ready yet, waiting 5 seconds..."
+            sleep 5
+          done
+          echo "ERROR: SonarQube failed to start in time"
+          exit 1
       
       # ======================================================================
       # ÉTAPE 8 : Créer le projet dans SonarQube
