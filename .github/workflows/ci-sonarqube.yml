@@ -143,7 +143,7 @@ jobs:
       - name: Check Quality Gate Status
         run: |
           echo "Waiting for SonarQube to process the report..."
-          sleep 10
+          sleep 30
 
           STATUS=$(curl -s -u admin:admin "http://localhost:9000/api/qualitygates/project_status?projectKey=playwright-pytest-hatch" | jq -r '.projectStatus.status')
           
