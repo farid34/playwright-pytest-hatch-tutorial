@@ -156,10 +156,11 @@ Source = "https://github.com/farid34/playwright-pytest-hatch-tutorial"
 source = ["src"]
 relative_files = true
 omit = [
-    "tests/*",                          # Exclure les tests
+    "/tests/*",                         # Exclure les tests
     "**/__pycache__/*",                 # Exclure le cache Python
     "**/__init__.py",                   # Exclure les __init__.py (fichiers vides)
     "**/conftest.py",                   # Exclure les fixtures pytest
+    "*/pages/*",                        # Exclure les Page Objects
 ]
 
 [tool.coverage.report]

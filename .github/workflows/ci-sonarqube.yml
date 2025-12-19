@@ -139,3 +139,33 @@ jobs:
             -Dsonar.host.url=http://localhost:9000 \
             -Dsonar.token=${{ steps.sonar-token.outputs.token }} \
             -Dsonar.python.coverage.reportPaths=coverage.xml
+
+      - name: Check Quality Gate Status
+        run: |
+          echo "Waiting for SonarQube to process the report..."
+          sleep 10
+
+          STATUS=$(curl -s -u admin:admin "http://localhost:9000/api/qualitygates/project_status?projectKey=playwright-pytest-hatch" | jq -r '.projectStatus.status')
+          
+          echo "================================"
+          echo "Quality Gate Status: $STATUS"
+          echo "================================"
+          
+          if [ "$STATUS" = "ERROR" ]; then
+            echo "❌ Quality Gate FAILED!"
+            echo "Coverage is below 80% (currently 74%)"
+            echo "================================"
+            
+            # Afficher les détails
+            curl -s -u admin:admin "http://localhost:9000/api/qualitygates/project_status?projectKey=playwright-pytest-hatch" | jq '.projectStatus.conditions[]'
+            
+            exit 1
+          elif [ "$STATUS" = "OK" ]; then
+            echo "✅ Quality Gate PASSED!"
+            echo "Coverage is above 80%"
+            exit 0
+          else
+            echo "⚠️ Quality Gate Status: $STATUS"
+            exit 1
+          fi
+        
