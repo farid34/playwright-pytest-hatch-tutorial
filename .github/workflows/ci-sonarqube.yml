@@ -75,20 +75,14 @@ jobs:
         run: hatch env create  # Crée l'environnement virtuel et installe les dépendances
       
       # ======================================================================
-      # ÉTAPE 5 : Installation des navigateurs Playwright
-      # ======================================================================
-      - name: Install Playwright browsers
-        run: hatch run playwright install --with-deps chromium  # Installe Chrome + dépendances système
-      
-      # ======================================================================
-      # ÉTAPE 6 : Exécution des tests avec couverture de code
+      # ÉTAPE 5 : Exécution des tests avec couverture de code
       # ======================================================================
       # Génère le fichier coverage.xml nécessaire pour SonarQube
       - name: Run tests with coverage
         run: hatch run pytest --cov=src --cov-report=xml --cov-report=term
       
       # ======================================================================
-      # ÉTAPE 7 : Attendre que SonarQube soit prêt
+      # ÉTAPE 6 : Attendre que SonarQube soit prêt
       # ======================================================================
       # Le conteneur SonarQube met ~1-2 minutes à démarrer
       - name: Wait for SonarQube to be ready
@@ -106,7 +100,7 @@ jobs:
           exit 1
       
       # ======================================================================
-      # ÉTAPE 8 : Créer le projet dans SonarQube
+      # ÉTAPE 7 : Créer le projet dans SonarQube
       # ======================================================================
       # Utilise les credentials par défaut (admin/admin)
       - name: Create SonarQube project
@@ -114,7 +108,7 @@ jobs:
           curl -u admin:admin -X POST "http://localhost:9000/api/projects/create?name=Playwright%20Pytest%20Tutorial&project=playwright-pytest-hatch"
       
       # ======================================================================
-      # ÉTAPE 9 : Générer un token d'authentification SonarQube
+      # ÉTAPE 8 : Générer un token d'authentification SonarQube
       # ======================================================================
       # Le token est stocké dans la variable d'output 'token'
       - name: Generate SonarQube token
@@ -124,7 +118,7 @@ jobs:
           echo "token=$TOKEN" >> $GITHUB_OUTPUT
       
       # ======================================================================
-      # ÉTAPE 10 : Analyse du code avec SonarQube Scanner
+      # ÉTAPE 9 : Analyse du code avec SonarQube Scanner
       # ======================================================================
       # Lance l'analyse de qualité du code et envoie les résultats à SonarQube
       - name: SonarQube Scan
