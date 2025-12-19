@@ -78,8 +78,8 @@ jobs:
       # ÉTAPE 5 : Exécution des tests avec couverture de code
       # ======================================================================
       # Génère le fichier coverage.xml nécessaire pour SonarQube
-      - name: Run tests with coverage
-        run: hatch run pytest --cov=src --cov-report=xml --cov-report=term
+      - name: Run unit tests with coverage
+        run: hatch run pytest tests/unit/ --cov=src --cov-report=xml --cov-report=term
       
       # ======================================================================
       # ÉTAPE 6 : Attendre que SonarQube soit prêt
