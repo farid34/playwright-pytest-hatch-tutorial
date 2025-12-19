@@ -56,6 +56,8 @@ install-browsers = "playwright install"
 test = "pytest {args}"
 test-v = "pytest -v {args}"
 test-vv = "pytest -vv {args}"
+test-cov = "pytest --cov=src --cov-report=term --cov-report=html --cov-report=xml {args}"
+
 
 # Tests en mode visible (headed)
 test-headed = "pytest --headed --slowmo=500 {args}"
@@ -69,6 +71,8 @@ test-cart = "pytest -m cart {args}"
 
 # Tests parallèles (plus rapides)
 test-parallel = "pytest -n auto {args}"
+test-parallel-cov = "pytest -n auto --cov=src --cov-report=term --cov-report=xml {args}"
+
 
 # Rapports
 test-report = "pytest --html=reports/report.html --self-contained-html {args}"
@@ -77,6 +81,9 @@ test-report = "pytest --html=reports/report.html --self-contained-html {args}"
 test-allure = "pytest --alluredir=allure-results {args}"
 allure-serve = "allure serve allure-results"
 allure-generate = "allure generate allure-results -o allure-report --clean"
+
+# Tests E2E avec parallélisation (recommandé pour CI/CD)
+test-allure-parallel = "pytest --alluredir=allure-results -n auto --dist loadscope {args}"
 
 # SonarQube
 sonar = "pwsh scripts/run-sonar-analysis.ps1"

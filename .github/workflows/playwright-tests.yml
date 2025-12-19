@@ -68,7 +68,7 @@ jobs: # Définit les tâches à exécuter (1 ou n jobs, ex: test, build, deploy)
     # ÉTAPE 6: Lancer les tests avec Allure
     # ─────────────────────────────────────────────────────
     - name: 🧪 Run tests
-      run: hatch run test-allure -n auto # Lance les tests Playwright + génère les données Allure
+      run: hatch run test-allure-parallel # Lance les tests Playwright + génère les données Allure
     
     # ─────────────────────────────────────────────────────
     # ÉTAPE 7: Installer Java (requis pour Allure)
