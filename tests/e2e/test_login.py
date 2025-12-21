@@ -17,7 +17,6 @@ def test_login_success(login_page):
     expect(login_page.app_logo).to_have_text("Swag Labs")
 
 
-@pytest.mark.smoke
 def test_login_locked_user(login_page):
     """Test: Login avec un utilisateur bloqué"""
     login_page.navigate()

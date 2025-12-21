@@ -8,6 +8,16 @@ on: # Définit quand le workflow se déclenche
   pull_request: # Se déclenche quand quelqu'un crée une "Pull request" vers main ou master (code testé avant merge)
     branches: [ main, master ]
   workflow_dispatch: # Permet de lancer le workflow 'manuellement' depuis l'interface Github (Actions -> Run workflow -> clic)
+    inputs:
+      test_type:
+        description: 'Type de tests à lancer'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+          - smoke # Tests rapides (2-3 min)
+          - full  # Tous les tests E2E (10 min)
+
 
 # ═══════════════════════════════════════════════════════════
 # PERMISSIONS
@@ -65,11 +75,39 @@ jobs: # Définit les tâches à exécuter (1 ou n jobs, ex: test, build, deploy)
       run: hatch run install-browsers # Installe les navigateurs Playwright (Chromium, Firefox, WebKit)
     
     # ─────────────────────────────────────────────────────
+    # ÉTAPE 6: Déterminer quels tests lancer
+    # ─────────────────────────────────────────────────────
+    - name: 🎯 Determine test suite
+      id: test-suite
+      run: |
+        # Workflow manuel
+        if [ "${{ github.event_name}}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event.inputs.test_type }}" = "smoke" ]; then
+            echo "args=-m smoke" >> $GITHUB_OUTPUT
+            echo "🔥 Smoke tests (manuel)"
+          else
+            echo "args=" >> $GITHUB_OUTPUT
+            echo "📋 Tous les tests E2E (manuel)"
+          fi
+
+        # Push sur main/master après merge
+        elif [ "${{ github.event_name }}" = "push" ]; then
+          echo "args=-m smoke" >> $GITHUB_OUTPUT
+          echo "🔥 Smoke tests (auto après merge)"
+        
+        # Pull request
+        else
+          echo "args=" >> $GITHUB_OUTPUT
+          echo "📋 Tous les tests E2E (PR)"
+        fi
+
+    # ─────────────────────────────────────────────────────
     # ÉTAPE 6: Lancer les tests avec Allure
     # ─────────────────────────────────────────────────────
     - name: 🧪 Run tests
-      run: hatch run test-allure-parallel # Lance les tests Playwright + génère les données Allure
-    
+      #run: hatch run test-allure-parallel # Lance les tests Playwright + génère les données Allure
+      run: hatch run pytest tests/e2e/ ${{ steps.test-suite.outputs.args }} --alluredir=allure-results -n auto
+      
     # ─────────────────────────────────────────────────────
     # ÉTAPE 7: Installer Java (requis pour Allure)
     # ─────────────────────────────────────────────────────
