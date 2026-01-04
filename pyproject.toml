@@ -29,7 +29,8 @@ dev = [
     "pytest-xdist>=3.5.0",
     "rich>=13.0.0",
     "allure-pytest>=2.13.0",
-    "pytest-cov>=4.1.0"
+    "pytest-cov>=4.1.0",
+    "python-dotenv>=1.0.0"
 ]
 
 # ═══════════════════════════════════════════════════════════
@@ -44,7 +45,8 @@ dependencies = [
     "pytest-xdist>=3.5.0",
     "rich>=13.0.0",
     "allure-pytest>=2.13.0",
-    "pytest-cov>=4.1.0"
+    "pytest-cov>=4.1.0",
+    "python-dotenv>=1.0.0"
 ]
 
 # Scripts personnalisés pour l'environnement par défaut

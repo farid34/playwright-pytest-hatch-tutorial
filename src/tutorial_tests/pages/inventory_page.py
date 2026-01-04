@@ -9,8 +9,12 @@ from .base_page import BasePage
 class InventoryPage(BasePage):
     """Page d'inventaire des produits Saucedemo"""
 
-    def __init__(self, page: Page):
+    def __init__(self, page: Page, base_url: str):
         super().__init__(page)
+        self.url = f"{base_url}/inventory.html"
+    
+    def navigate(self):
+        self.page.goto(self.url)
 
     # ═══════════════════════════════════════════════════════════
     # PROPERTIES: Spécifiques à Inventory

@@ -6,10 +6,9 @@ from playwright.sync_api import expect
 # ═══════════════════════════════════════════════════════════
 
 @pytest.mark.smoke
-def test_inventory_page_loads(login_page, inventory_page):
+def test_inventory_page_loads(inventory_page):
     """Test: La page inventory charge correctement après login"""
-    login_page.navigate()
-    login_page.login("standard_user", "secret_sauce")
+    inventory_page.navigate()
 
     assert inventory_page.is_on_inventory_page()
     assert inventory_page.get_title() == "Products"

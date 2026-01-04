@@ -22,6 +22,6 @@ def test_login_locked_user(login_page):
     login_page.navigate()
     login_page.login("locked_out_user", "secret_sauce")
 
-    assert login_page.is_error_displayed
+    assert login_page.is_error_displayed()
     error_message = login_page.get_error_message()
     assert "Sorry, this user has been locked out" in error_message

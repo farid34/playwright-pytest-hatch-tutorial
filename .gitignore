@@ -214,3 +214,6 @@ tests-results/
 allure-results/
 allure-report/
 INSTALLATION.md
+
+# Secrets
+.env
