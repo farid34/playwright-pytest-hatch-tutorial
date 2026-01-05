@@ -87,7 +87,9 @@ jobs:
       - name: Run integration tests
         env:
           GITHUB_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-        run: hatch run test-parallel-cov tests/integration/
+        run: |
+          echo "Token présent: ${GITHUB_ACCESS_TOKEN:+oui}"
+          hatch run test-parallel-cov tests/integration/
       
       # ======================================================================
       # ÉTAPE 6 : Attendre que SonarQube soit prêt
