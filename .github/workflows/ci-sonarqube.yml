@@ -80,6 +80,14 @@ jobs:
       # Génère le fichier coverage.xml nécessaire pour SonarQube
       - name: Run unit tests with coverage (parallel)
         run: hatch run test-parallel-cov tests/unit/
+
+      # ======================================================================
+      # ÉTAPE 5bis : Exécution des tests d'intégration
+      # ======================================================================
+      - name: Run integration tests
+        env:
+          GITHUB_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        run: hatch run test-parallel-cov tests/integration/
       
       # ======================================================================
       # ÉTAPE 6 : Attendre que SonarQube soit prêt
