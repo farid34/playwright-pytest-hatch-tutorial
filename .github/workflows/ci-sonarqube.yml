@@ -87,7 +87,7 @@ jobs:
       # ÉTAPE 5bis : Exécution des tests d'intégration
       # ======================================================================
       - name: Run integration tests
-        run: hatch run test-parallel-cov tests/integration/
+        run: hatch run pytest tests/integration/ --alluredir=allure-results -n auto
       
       # ======================================================================
       # ÉTAPE 6 : Attendre que SonarQube soit prêt
