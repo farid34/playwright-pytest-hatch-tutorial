@@ -22,6 +22,8 @@ jobs:
   test-and-analyze:
     name: Tests et Analyse SonarQube
     runs-on: ubuntu-latest  # Utilise un runner Ubuntu
+    env:
+      GITHUB_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
 
     # ========================================================================
     # SERVICE : SonarQube embarqué dans GitHub Actions
@@ -85,11 +87,7 @@ jobs:
       # ÉTAPE 5bis : Exécution des tests d'intégration
       # ======================================================================
       - name: Run integration tests
-        env:
-          GITHUB_ACCESS_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
-        run: |
-          echo "Token présent: ${GITHUB_ACCESS_TOKEN:+oui}"
-          hatch run test-parallel-cov tests/integration/
+        run: hatch run test-parallel-cov tests/integration/
       
       # ======================================================================
       # ÉTAPE 6 : Attendre que SonarQube soit prêt
